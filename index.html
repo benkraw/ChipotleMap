@@ -59,10 +59,13 @@ var locations = d3.select(".locations").selectAll('circle')
 
 locations.enter().append("svg:circle")
     .attr("cy", function(d) { return projection(d.coordinates)[1];})
-	.attr("cx", function(d) { return projection(d.coordinates)[0];})
+	  .attr("cx", function(d) { return projection(d.coordinates)[0];})
     .attr("id", function(d) { return d.label})
-    .attr("r", 4.5);
-                                                                                                      
+    .attr("r", 4.5)
+    .append("svg:title")
+    .text(function(d) { console.log(d.label); return d.label; });
+
+
 </script>
 </body>
 </html>
