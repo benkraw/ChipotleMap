@@ -31,10 +31,12 @@ def main():
     newData = []
     for adr in data:
         result = decode_address_to_coordinates(adr)
-        print result 
         if result != None:
-            result['addr'] = adr
-            newData.append(result)
+            res = {}
+            res['coordinates'] = [result['lng'], result['lat']]
+            res['label'] = adr 
+            print res
+            newData.append(res)
 
     with open('data.txt', 'w') as outfile:
         json.dump(newData, outfile)
