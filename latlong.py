@@ -38,6 +38,6 @@ def main():
             print res
             newData.append(res)
 
-    with open('data.txt', 'w') as outfile:
+    with open('data.js', 'w') as outfile:
         json.dump(newData, outfile)
 main()
