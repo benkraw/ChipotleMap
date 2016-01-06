@@ -38,11 +38,33 @@ div.tooltip {
 	<center> Chipotle Restaurant Locations </center>
 	<script src="http://d3js.org/d3.v3.min.js"></script>
 	<script src="http://d3js.org/topojson.v1.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 	<script src="layoutMap.js"></script>
 	<script src="data.js"></script>
 
 	<script>
+
+
+var stateList = [];
+for(var addr in coordinates){
+	var sliceState = coordinates[addr].label.split(",")[1].split(" ")[1];
+	if (sliceState != "Suite" && sliceState != "Unit"){
+		stateList.push(sliceState);
+	}
+}
+var resultsStatesNum = _.reduce(stateList,function(counts,key){ counts[key]++; return counts },
+                  _.object( _.map( _.uniq(stateList), function(key) { return [key, 0] })))
+
+Object.prototype.getKey = function(value){
+  for(var key in this){
+    if(this[key] == value){
+      return key;
+    }
+  }
+  return null;
+};
+
+/* D3 MAGIC */
 	var width = 960,
 	height = 500;
 
@@ -72,6 +94,10 @@ div.tooltip {
 	.enter().append("path")
 	.attr("d", path)
 	.on('mousemove', function(d) {
+		var countLocs = resultsStatesNum[usStates.getKey(d.properties.name.toUpperCase())];
+		if(countLocs === undefined){
+			countLocs = 0;
+		}
 		tooltip[0][0].style.display = "block"
 		var mouse = d3.mouse(locations.enter().append("svg:circle").node()).map(function(d) {
 			return parseInt(d);
@@ -79,7 +105,9 @@ div.tooltip {
 		tooltip.classed('hidden', false)
 		.attr('style', 'left:' + (mouse[0] + 15) +
 			'px; top:' + (mouse[1]) + 'px')
-		.html(d.properties.name)
+		
+		.html("<table><tr>" + d.properties.name + "</tr><br><hr><tr># of Resturants:" + countLocs
+		 + "</tr></table>")
 	})
 	.on('mouseout', function() {
 		tooltip[0][0].style.display = "none"
