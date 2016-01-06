@@ -100,10 +100,10 @@ def main():
 	tree = makeRequest(url)
 	i = 1
 	locations = []
-	for state in tree.xpath('//ul[@class="list-unstyled-links"]//@href')[3:4]:
+	for state in tree.xpath('//ul[@class="list-unstyled-links"]//@href'):
 		stateTree = makeRequest(state)
 		print "Scraping state # " + str(i) 
-		for loc in stateTree.xpath('//ul[@class="list-unstyled-links"]//@href')[1:3]:
+		for loc in stateTree.xpath('//ul[@class="list-unstyled-links"]//@href'):
 			locs = makeRequest(loc)
 			if locs != None:	
 				try:
