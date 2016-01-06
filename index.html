@@ -1,99 +1,115 @@
 <style>
 body {
-   background-color: white; 
-   margin: 0 auto;
-   width: 75%;
-   font-family: Consolas, sans-serif;
-   font-size: 1.5em;
-   color: #454545;
-   font-weight: bold;
-   text-align: center;
+	background-color: white; 
+	margin: 0 auto;
+	width: 75%;
+	font-family: Consolas, sans-serif;
+	font-size: 1.5em;
+	color: #454545;
+	font-weight: bold;
+	text-align: center;
 }
 
 svg {
-   stroke-width: 1.8px;
-   stroke: #CFCFCF;
-   fill: #F0F0F0;
+	stroke-width: 1.8px;
+	stroke: #CFCFCF;
+	fill: #F0F0F0;
 }
 
 circle {
-   fill: #FF8533;
-   stroke-width: 0px;
+	fill: #FF8533;
+	stroke-width: 0px;
 }
 
-
-    div.tooltip {
-        color: #222;
-        background-color: #fff;
-        padding: .5em;
-        text-shadow: #f5f5f5 0 1px 0;
-        border-radius: 2px;
-        opacity: 0.9;
-        position: absolute;
-    }
+div.tooltip {
+	color: white;
+	background-color: black;
+	padding: 0.5em;
+	text-shadow: #F5F5F4 0 1px 0;
+	border-radius: 7px;
+	opacity: .9;
+	font-size: 17px;
+	position: absolute;
+}
 
 </style>
 <body>
-  <br><br>
-  <center> Chipotle Restaurant Locations </center>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-    <script src="http://d3js.org/topojson.v1.min.js"></script>
+	<br><br>
+	<center> Chipotle Restaurant Locations </center>
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="http://d3js.org/topojson.v1.min.js"></script>
 
-<script src="layoutMap.js"></script>
-<script src="data.js"></script>
+	<script src="layoutMap.js"></script>
+	<script src="data.js"></script>
 
-<script>
+	<script>
+	var width = 960,
+	height = 500;
 
-var width = 960,
-    height = 500;
+	var projection = d3.geo.albersUsa()
+	.scale(1000)
+	.translate([width/2, height/2]);
 
-var projection = d3.geo.albersUsa()
-    .scale(1000)
-    .translate([width/2, height/2]);
+	var tooltip = d3.select('body').append('div')
+	.attr('class', 'hidden tooltip');
+	tooltip[0][0].style.display = "None"
 
-var tooltip = d3.select('body').append('div')
-            .attr('class', 'hidden tooltip');
+	var path = d3.geo.path().projection(projection);
 
-var path = d3.geo.path().projection(projection);
-
-var d3_map = d3.select("body").append("svg:svg")
-  .attr("width", width)
-  .attr("height", height);
+	var d3_map = d3.select("body").append("svg:svg")
+	.attr("width", width)
+	.attr("height", height);
 
 
-var states = d3_map.append("svg:g")
-  .attr("class", "states");
-        
-var locations = d3_map.append("svg:g")
-  .attr("class", "locations");
+	var states = d3_map.append("svg:g")
+	.attr("class", "states");
 
-states.selectAll("path")
-  .data(mapFeatures.features)
-.enter().append("path")
-  .attr("d", path); 
+	var locations = d3_map.append("svg:g")
+	.attr("class", "locations");
 
-var locations = d3.select(".locations").selectAll('circle')
-  .data(coordinates);
+	states.selectAll("path")
+	.data(mapFeatures.features)
+	.enter().append("path")
+	.attr("d", path)
+	.on('mousemove', function(d) {
+		tooltip[0][0].style.display = "block"
+		var mouse = d3.mouse(locations.enter().append("svg:circle").node()).map(function(d) {
+			return parseInt(d);
+		});
+		tooltip.classed('hidden', false)
+		.attr('style', 'left:' + (mouse[0] + 15) +
+			'px; top:' + (mouse[1]) + 'px')
+		.html(d.properties.name)
+	})
+	.on('mouseout', function() {
+		tooltip[0][0].style.display = "none"
+		tooltip.classed('hidden', true);
+	});
 
-locations.enter().append("svg:circle")
-    .attr("cy", function(d) { return projection(d.coordinates)[1];})
-	  .attr("cx", function(d) { return projection(d.coordinates)[0];})
-    .attr("id", function(d) { return d.label})
-    .attr("r", 4.5)
-    .attr('d', path)
-                .on('mousemove', function(d) {
-                    var mouse = d3.mouse(locations.enter().append("svg:circle").node()).map(function(d) {
-                       return parseInt(d);
-                    });
-                    tooltip.classed('hidden', false)
-                        .attr('style', 'left:' + (mouse[0] + 15) +
-                                'px; top:' + (mouse[1] - 35) + 'px')
-                        .html(d.label);
-                })
-                .on('mouseout', function() {
-                    tooltip.classed('hidden', true);
-                });
+	var locations = d3.select(".locations").selectAll('circle')
+	.data(coordinates);
 
-</script>
+	locations.enter().append("svg:circle")
+	.attr("cy", function(d) { return projection(d.coordinates)[1];})
+	.attr("cx", function(d) { return projection(d.coordinates)[0];})
+	.attr("id", function(d) { return d.label})
+	.attr("r", 4.5)
+	.attr('d', path)
+	.on('mousemove', function(d) {
+		tooltip[0][0].style.display = "block"
+		var mouse = d3.mouse(locations.enter().append("svg:circle").node()).map(function(d) {
+			return parseInt(d);
+		});
+		tooltip.classed('hidden', false)
+		.attr('style', 'left:' + (mouse[0] + 15) +
+			'px; top:' + (mouse[1]) + 'px')
+		.html(d.label);
+	})
+	.on('mouseout', function() {
+		tooltip[0][0].style.display = "none"
+		tooltip.classed('hidden', true);
+	});
+
+	</script>
 </body>
 </html>
