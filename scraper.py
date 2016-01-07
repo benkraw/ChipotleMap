@@ -96,6 +96,7 @@ def makeObj(addr):
 	return res 
 
 def main():
+	
 	url = "http://www.menuism.com/restaurant-locations/chipotle-mexican-grill-164322/us"
 	tree = makeRequest(url)
 	i = 1
@@ -116,4 +117,18 @@ def main():
 					locations.append(res)
 		i+=1
 	write_data(locations)
+
+	treeCDC = makeRequest("http://www.cdc.gov/ecoli/2015/o26-11-15/map.html")
+	dataCDC = filter(None, map(lambda row:row.strip(), treeCDC.xpath('//table[@class="table table-striped table-bordered"][1]//tr//text()')))[2:]
+	infectedCDC = dict((x,y) for x,y in zip(dataCDC[::2], dataCDC[1::2]))
+	with open('dataCDC.js', 'w') as outfile:
+		outfile.write("var dataCDC = ")
+		json.dump(infectedCDC, outfile)
+		outfile.write(";")
+
 main()
+
+
+
+
+

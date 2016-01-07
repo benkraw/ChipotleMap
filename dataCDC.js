@@ -1,0 +1,1 @@
+var dataCDC = {"Pennsylvania": "2", "Washington": "27", "Minnesota": "2", "Oregon": "13", "Illinois": "1", "New York": "1", "California": "3", "Ohio": "3", "Maryland": "1"};
