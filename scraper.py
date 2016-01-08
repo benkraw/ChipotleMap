@@ -127,8 +127,3 @@ def main():
 		outfile.write(";")
 
 main()
-
-
-
-
-

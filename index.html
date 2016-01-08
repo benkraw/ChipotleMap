@@ -10,6 +10,13 @@ body {
 	text-align: center;
 }
 
+footer {
+  bottom: 0;
+  margin-top:150px;
+  text-align: center;
+  font-size: 12px;
+}
+
 svg {
 	stroke-width: 1.8px;
 	stroke: #CFCFCF;
@@ -17,9 +24,8 @@ svg {
 	margin-left: 5%;
 }
 
-circle {
-	fill: #FF8533;
-	stroke-width: 0px;
+circle{
+ fill: darkslateblue;
 }
 
 div.tooltip {
@@ -45,14 +51,16 @@ div.tooltip {
 	<script src="data.js"></script>
 		<script src="dataCDC.js"></script>
 
-
+<div id="table_container" class="csvTable"></div>
 	<script>
 
+//Get all states from scraper data
 var stateList = [];
 for(var addr in coordinates){
 		stateList.push(coordinates[addr].label.split(",")[1].split(" ")[1]);
 }
 
+//Get count of locations in each state
 var resultsStatesNum = _.reduce(stateList,function(counts,key){ counts[key]++; return counts },
                   _.object( _.map( _.uniq(stateList), function(key) { return [key, 0] })))
 
@@ -75,7 +83,7 @@ Object.prototype.getKey = function(value){
 
 	var tooltip = d3.select('body').append('div')
 	.attr('class', 'hidden tooltip');
-	tooltip[0][0].style.display = "None"
+	tooltip[0][0].style.display = "None" // need to hide on init
 
 	var path = d3.geo.path().projection(projection);
 
@@ -96,17 +104,17 @@ Object.prototype.getKey = function(value){
 	.attr("d", path)
 		.style("fill", function(d) {
 			if(dataCDC[d.properties.name] != undefined){
-				return "red";
+				return "red"; // change fill color based on if there were any cases in state
 			}
 		})
 
 	.on('mousemove', function(d) {
 		var countLocs = resultsStatesNum[usStates.getKey(d.properties.name.toUpperCase())];
-		if(countLocs === undefined){
+		if(countLocs === undefined){ //get count of locations
 			countLocs = 0;
 		}
 		var countEcoli = dataCDC[d.properties.name];
-		if(countEcoli == undefined){
+		if(countEcoli == undefined){ //get count of ecoli cases
 			countEcoli = 0;
 		}
 		tooltip[0][0].style.display = "block"
@@ -118,7 +126,7 @@ Object.prototype.getKey = function(value){
 			'px; top:' + (mouse[1]) + 'px')
 
 		.html("<table><tr>" + d.properties.name + "</tr><br><hr><tr># of Resturants:" + countLocs
-		 + "</tr><br><tr># of E.coli infections:" + countEcoli +"</tr></table>")
+		 + "</tr><br><tr># of E.coli infections:" + countEcoli +"</tr></table>") // make tooltip hover
 	})
 	.on('mouseout', function() {
 		tooltip[0][0].style.display = "none"
@@ -152,19 +160,38 @@ Object.prototype.getKey = function(value){
 
 
 <script>
-var table = $('<table/>').html('<thead><tr><th>States</th><th># E.coli infections</th></tr></thead>').appendTo('body'),    
+//make data table 
+var table = $('<table/>').html('<tr><th>States</th><th># E.coli infections</th></tr>').appendTo('body'),    
 tbody = table.append('<tbody/>');
-console.log(table);
 table[0].style.marginTop = "-47%";
 table[0].style.marginLeft = "-15%";
+table[0].style.width = "35%";
+var totalCount = 0;
 $.each(dataCDC, function(key, value){
 		if (key != "getKey"){
-    tbody.append('<tr><td>'+key+'</td><td style="padding-left:20%;">'+value+'</td></tr>');
+			totalCount += parseInt(value);
+    tbody.append('<tr><td>'+key+'</td><td style="text-align:center;">'+value+'</td></tr>');
   }
 });
+console.log(totalCount);
+tbody.append('<tr><td>Total </td><td style="text-align:center;">' + totalCount + '</td></tr><br><tr><td style="font-size:10px;">* Data collected from CDC</tr><br> <tr style="font-size:10px;"><td>Chipotle Restaurant Location Data: <a href="http://www.menuism.com/restaurant-locations/chipotle-mexican-grill-164322/us" target="_blank"> Menuism</a></td></tr>');
+
 </script>
 
 
 
+<footer>
+ Made by <a href="http://benkrawitz.com" target="_blank">Ben Krawitz</a>
+</footer>
 </body>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68261608-2', 'auto');
+  ga('send', 'pageview');
+
+</script>
 </html>
